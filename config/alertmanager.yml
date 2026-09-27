@@ -1,0 +1,23 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: telegram
+  group_by: [alertname, component, severity]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+receivers:
+  - name: telegram
+    telegram_configs:
+      - bot_token: '${TELEGRAM_BOT_TOKEN}'
+        chat_id: ${TELEGRAM_CHAT_ID}
+        send_resolved: true
+        parse_mode: HTML
+        message: |
+          <b>{{ .Status | toUpper }}</b>: {{ .CommonAnnotations.summary }}
+          <b>Severity:</b> {{ .CommonLabels.severity }}
+          <b>Component:</b> {{ .CommonLabels.component }}
+          {{ .CommonAnnotations.description }}
+          <b>Alerts:</b> {{ len .Alerts }}
